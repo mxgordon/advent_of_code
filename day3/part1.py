@@ -53,6 +53,7 @@ for num, point0 in enumerate(points0):
         x1, y1 = points1[index]
         distances.append([fabs(x1) + fabs(y1), num, index])
 
+
 assert points0[0] is not points0[1]
 
 print(2+min([i+iii for ii, i, iii in distances]))
