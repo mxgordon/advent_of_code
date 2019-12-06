@@ -8,23 +8,23 @@ def parse_instruction(instruction_block: int) -> Tuple[int, List[int]]:
 
     while len(params) < 3:
         params.append(0)
-    print(opcode)
 
-    assert opcode in [1, 2, 3, 4, 99]
+    # assert opcode in [1, 2, 3, 4, 99]
     assert params[-1] == 0
     assert len(params) == 3
     return opcode, params
 
 
 def get_values(params: List[int], index: int, intcode: List[int]):
-    block = intcode[index:index + len(params) - 1]
+    block = intcode[index +1:index + len(params)]
     values = []
 
     for param, data in tuple(zip(params[0:2], block)):
         if param == 0:
             values.append(intcode[data])
-        if params == 1:
+        elif param == 1:
             values.append(data)
+    assert len(values) == 2
     return values
 
 
@@ -36,7 +36,7 @@ def add(*nums: int) -> int:
 
 
 def multiply(*nums: int) -> int:
-    num = 0
+    num = 1
     for i in nums:
         num *= i
     return num
@@ -49,29 +49,57 @@ if __name__ == '__main__':
     index = 0
     while index < len(intcode):
         opcode, params = parse_instruction(intcode[index])
-        if opcode == 1:
+        if opcode == 1:  # add
             values = get_values(params, index, intcode)
-            intcode[index + 3] = add(*values)
+            intcode[intcode[index + 3]] = add(*values)
             index += 4
 
-        elif opcode == 2:
+        elif opcode == 2:  # multiply
             values = get_values(params, index, intcode)
-            intcode[index + 3] = multiply(*values)
+            intcode[intcode[index + 3]] = multiply(*values)
             index += 4
 
-        elif opcode == 3:
+        elif opcode == 3:  # input
             intcode[intcode[index + 1]] = int(input("Need int: "))
             index += 2
 
-        elif opcode == 3:
+        elif opcode == 4:  # output
             print(intcode[intcode[index + 1]])
             index += 2
 
-        elif index == 99:
+        elif opcode == 5:  # jump if true
+            values = get_values(params, index, intcode)
+            if values[0] != 0:
+                index = values[1]
+            else:
+                index += 3
+
+        elif opcode == 6:  # jump if false
+            values = get_values(params, index, intcode)
+            if values[0] == 0:
+                index = values[1]
+            else:
+                index += 3
+
+        elif opcode == 7:  # less than
+            values = get_values(params, index, intcode)
+            if values[0] < values[1]:
+                intcode[intcode[index + 3]] = 1
+            else:
+                intcode[intcode[index + 3]] = 0
+            index += 4
+
+        elif opcode == 8:  # equals
+            values = get_values(params, index, intcode)
+            if values[0] == values[1]:
+                intcode[intcode[index + 3]] = 1
+            else:
+                intcode[intcode[index + 3]] = 0
+            index += 4
+
+        elif opcode == 99:  # end
             print("---- EOF ----")
             break
 
         else:
             raise ValueError(f"Unknown opcode {opcode} at {index}")
-
-
