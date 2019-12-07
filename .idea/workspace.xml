@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8a69df7d-9609-4431-97c5-218f9075945e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/day6/data.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day6/final.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day6/part1.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/day6/part2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/day6/part1.py" beforeDir="false" afterPath="$PROJECT_DIR$/day6/part1.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,7 +24,7 @@
   </component>
   <component name="ProjectId" id="1UQijQNQVFuWfiDU305zU9gwhGr" />
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/day6" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -195,11 +194,6 @@
           <url>file://$PROJECT_DIR$/day2/part2.py</url>
           <line>22</line>
           <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/day6/part1.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
