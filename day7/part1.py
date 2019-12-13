@@ -74,9 +74,11 @@ if __name__ == '__main__':
     for input_set in amp_list:
         print(input_set)
         try:
+            copy = [[], [], [], [], []]
             carry = 0
             while True:
-                for input_amp in input_set:
+                tmp_list = copy.copy()
+                for num, input_amp in enumerate(input_set):
                     print(f"**{carry}")
                     first = True
                     index = 0
@@ -105,6 +107,8 @@ if __name__ == '__main__':
                         elif opcode == 4:  # output
                             print(intcode[intcode[index + 1]])
                             carry_tmp = intcode[intcode[index + 1]]
+                            copy[num].append(carry_tmp)
+                            tmp_list[num].append(carry_tmp)
                             index += 2
 
                         elif opcode == 5:  # jump if true
@@ -144,6 +148,7 @@ if __name__ == '__main__':
 
                         else:
                             raise ValueError(f"Unknown opcode {opcode} at {index}")
+
         except BigReturn:
             pass
 
