@@ -3,8 +3,26 @@ from typing import Tuple, List
 import os
 from time import sleep
 
-import keyboard
+# import keyboard
 import numpy as np
+
+
+class LongStore:
+    def __init__(self):
+        self.ball_x = None
+        self.paddle_x = None
+
+    def put(self, ball_x=None, paddle_x=None):
+        if ball_x is not None:
+            self.ball_x = ball_x
+
+        else:
+            self.paddle_x = paddle_x
+
+    def get_all(self):
+        ball_x, paddle_x = self.ball_x, self.paddle_x
+        # self.ball_x, self.paddle_x = None, None
+        return ball_x, paddle_x
 
 
 class Store:
@@ -13,28 +31,32 @@ class Store:
         self.y = None
         self.tile_id = None
         self.full = False
-        self.saves = []
+        self.big_store = LongStore()
 
-    def put(self, num, index):
+    def put(self, num, index=None):
         if self.x is None:
             self.x = num
-            self.x_index = index
+            # self.x_index = index
         elif self.y is None:
             self.y = num
-            self.y_index = index
+            # self.y_index = index
         elif self.tile_id is None:
             # assert 0 <= num <= 4
             self.tile_id = num
             self.full = True
 
-        if num == 4 and self.tile_id is not None:
-            self.saves.append((self.x_index, self.y_index))
+        if self.tile_id == 3:
+            self.big_store.put(ball_x=self.x)
+
+        elif self.tile_id == 4:
+            self.big_store.put(paddle_x=self.x)
 
     def dump(self):
         assert self.full
         x, y, tile_id = self.x, self.y, self.tile_id
         self.x, self.y, self.tile_id, self.full = None, None, None, False
-        self.x_index, self.y_index = None, None
+        self.paddle_x, self.ball_x = None, None
+
         return x, y, tile_id
 
 
@@ -52,9 +74,18 @@ class Board:
             self.board[x, y] = id
 
     def print(self):
-        self.final = '\n'.join([str(str_line).replace(',', '').replace(' ', '').replace('-1', 'X').replace('\n', '') for str_line in np.rot90(self.board)])
-        self.final = self.final.replace('0', '.').replace('1', '▏').replace('2', '▆').replace('3', '_'). replace('4', 'O')
-        os.system('clear')
+        self.final = '\n'.join([str(str_line).replace(',', '')
+                               .replace(' ', '')
+                               .replace('-1', '╳')
+                               .replace('\n', '') for str_line in np.rot90(self.board)])
+
+        self.final = self.final.replace('0', '.')\
+            .replace('1', '▚')\
+            .replace('2', '▆')\
+            .replace('3', '_')\
+            .replace('4', 'O')
+
+        # os.system('clear')
         print(self.final)
         print(f"Score: {self.score}")
 
@@ -62,15 +93,14 @@ class Board:
         return np.sum(self.board == 2)
 
 
-
-def write(intcode: List[int], value: int, param: int, index: int, base: int):
+def write(intcode_: List[int], value: int, param: int, index_: int, base_: int):
     if param == 0:
-        intcode[intcode[index]] = value
+        intcode_[intcode_[index_]] = value
     elif param == 2:
-        intcode[intcode[index] + base] = value
+        intcode_[intcode_[index_] + base_] = value
     else:
         raise ValueError(f"Got param {param}")
-    return intcode
+    return intcode_
 
 
 def parse_instruction(instruction_block: int) -> Tuple[int, List[int]]:
@@ -115,106 +145,103 @@ def multiply(*nums: int) -> int:
     return num
 
 
-def get_key():
+def get_key(ball_x, paddle_x, f):
+    # f.write(f"Ball   {ball_x}\n")
+    # f.write(f'Paddle {paddle_x}\n')
+    # f.write("------------------\n")
+    # sleep(.3)
 
-    print("Input: ", end='')
-    while True:
-        a = keyboard.read_key()
-        if a in ['a', 's', 'd']:
-            sleep(0.12)
-            return a.replace('a', '-19191919').replace('s', '0').replace('d', '19191919')
+    print("Ball   ", ball_x)
+    print("Paddle ", paddle_x)
+    return paddle_x - ball_x
 
 
 if __name__ == '__main__':
+
     with open("data.json", 'r') as f:
         intcode = json.load(f)
 
-    for i in range(1000000):
-        intcode.append(0)
+    with open('logs.txt', 'a') as f:
 
-    storage = Store()
-    board = Board()
-    coords = []
+        for i in range(1000000):
+            intcode.append(0)
 
-    base = 0
+        storage = Store()
+        board = Board()
+        coords = []
 
-    index = 0
-    while index < len(intcode):
+        base = 0
 
-        if storage.full:
-            hide = storage.saves
-            a = storage.dump()
-            board.draw(*a)
-            board.print()
-            # print(intcode.index(a[0]))
-            # print(intcode.index(a[1]))
-            # print("Last write: ", a[2])
-            # print("Coords: ", hide)
-            # coords.append(storage.dump()[0:2])
+        index = 0
+        while index < len(intcode):
 
-        opcode, params = parse_instruction(intcode[index])
-        values = get_values(params, index, intcode, base)
+            if storage.full:
+                # hide = storage.saves
 
-        if opcode == 1:  # add
+                a = storage.dump()
+                board.draw(*a)
+                board.print()
 
-            intcode = write(intcode, add(*values), params[2], index + 3, base)
-            index += 4
+            opcode, params = parse_instruction(intcode[index])
+            values = get_values(params, index, intcode, base)
 
-        elif opcode == 2:
+            if opcode == 1:  # add
 
-            intcode = write(intcode, multiply(*values), params[2], index + 3, base)
-            index += 4
+                intcode = write(intcode, add(*values), params[2], index + 3, base)
+                index += 4
 
-        elif opcode == 3:  # input
-            # intcode[389] = 1
-            # print("====", index +1)
-            intcode = write(intcode, int(get_key()), params[0], index + 1, base)
-            # intcode[568] = 10
-            # intcode[570] = 20
-            index += 2
+            elif opcode == 2:
 
-        elif opcode == 4:  # output
-            # print(values[0])
-            # print("**", values[0])
-            storage.put(values[0], index + 1)
-            index += 2
+                intcode = write(intcode, multiply(*values), params[2], index + 3, base)
+                index += 4
 
-        elif opcode == 5:  # jump if true
-            if values[0] != 0:
-                index = values[1]
+            elif opcode == 3:  # input
+
+                intcode = write(intcode, int(get_key(*storage.big_store.get_all(), f)), params[0], index + 1, base)
+                index += 2
+
+            elif opcode == 4:  # output
+                storage.put(values[0], index + 1)
+                index += 2
+
+            elif opcode == 5:  # jump if true
+
+                if values[0] != 0:
+                    index = values[1]
+                else:
+                    index += 3
+
+            elif opcode == 6:  # jump if false
+
+                if values[0] == 0:
+                    index = values[1]
+                else:
+                    index += 3
+
+            elif opcode == 7:  # less than
+
+                if -19191919 in [values[0], values[1]]:
+                    intcode = write(intcode, -2, params[2], index + 3, base)
+                else:
+                    intcode = write(intcode, 1 if values[0] < values[1] else 0, params[2], index + 3, base)
+                index += 4
+
+            elif opcode == 8:  # equals
+
+                intcode = write(intcode, 1 if values[0] == values[1] else 0, params[2], index + 3, base)
+                index += 4
+
+            elif opcode == 9:
+
+                base += values[0]
+                index += 2
+
+            elif opcode == 99:  # end
+
+                print("---- EOF ----")
+                break
+
             else:
-                index += 3
-
-        elif opcode == 6:  # jump if false
-            if values[0] == 0:
-                index = values[1]
-            else:
-                index += 3
-
-        elif opcode == 7:  # less than
-            # if 19191919 in [values[0], values[1]]:
-            #     intcode = write(intcode, 2, params[2], index + 3, base)
-            # print([values[0], values[1]])
-            # print([intcode[index + 1], intcode[index + 2]])
-            if -19191919 in [values[0], values[1]]:
-                intcode = write(intcode, -2, params[2], index + 3, base)
-            else:
-                intcode = write(intcode, 1 if values[0] < values[1] else 0, params[2], index + 3, base)
-            index += 4
-
-        elif opcode == 8:  # equals
-            intcode = write(intcode, 1 if values[0] == values[1] else 0, params[2], index + 3, base)
-            index += 4
-
-        elif opcode == 9:
-            base += values[0]
-            index += 2
-
-        elif opcode == 99:  # end
-            print("---- EOF ----")
-            break
-
-        else:
-            raise ValueError(f"Unknown opcode {opcode} at {index}")
-    board.print()
-    print(board.count())
+                raise ValueError(f"Unknown opcode {opcode} at {index}")
+        board.print()
+        print(board.count())
