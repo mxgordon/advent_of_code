@@ -11,8 +11,8 @@ def valid_hex(letters):
     letters = letters[1:]
     if len(letters) != 6:
         return False
-    for l in letters:
-        if l not in [*'12344567890abcdef']:
+    for letter in letters:
+        if letter not in [*'12344567890abcdef']:
             return False
     return True
 
@@ -28,25 +28,25 @@ def has_nine_num(num):
 
 
 valid = 0
-for d in data:
-    if len(d) == 8 or (len(d) == 7 and 'cid' not in d):
-        if not 1920 <= int(d['byr']) <= 2002:
+for passport in data:
+    if len(passport) == 8 or (len(passport) == 7 and 'cid' not in passport):
+        if not 1920 <= int(passport['byr']) <= 2002:
             pass
-        elif not 2010 <= int(d['iyr']) <= 2020:
+        elif not 2010 <= int(passport['iyr']) <= 2020:
             pass
-        elif not 2020 <= int(d['eyr']) <= 2030:
+        elif not 2020 <= int(passport['eyr']) <= 2030:
             pass
-        elif d['hgt'][-2:] == 'in' and not 59 <= int(d['hgt'][:-2]) <= 76:
+        elif passport['hgt'][-2:] == 'in' and not 59 <= int(passport['hgt'][:-2]) <= 76:
             pass
-        elif d['hgt'][-2:] == 'cm' and not 150 <= int(d['hgt'][:-2]) <= 193:
+        elif passport['hgt'][-2:] == 'cm' and not 150 <= int(passport['hgt'][:-2]) <= 193:
             pass
-        elif d['hgt'][-2:] not in ['cm', 'in']:
+        elif passport['hgt'][-2:] not in ['cm', 'in']:
             pass
-        elif not valid_hex(d['hcl']):
+        elif not valid_hex(passport['hcl']):
             pass
-        elif not has_nine_num(d['pid']):
+        elif not has_nine_num(passport['pid']):
             pass
-        elif d['ecl'] not in 'amb blu brn gry grn hzl oth'.split():
+        elif passport['ecl'] not in 'amb blu brn gry grn hzl oth'.split():
             pass
         else:
             valid += 1
