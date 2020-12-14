@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from functools import reduce
 
 with open("data.txt", 'r') as f:
     data = [[*line.strip()] for line in f.readlines()]
@@ -8,28 +9,33 @@ with open("data.txt", 'r') as f:
 last = data.copy()
 
 
+def valrc(rc, arr):
+    if (rc > 0).all():
+        try:
+            tmp = arr[rc[0]][rc[1]]
+            return True
+        except:
+            return False
+    return False
 
 
 def get_visible(r, c, arr):
     movements = [*np.array([(-1, -1), (0, -1), (-1, 0), (0, 1), (1, 1), (1, 0), (-1, 1), (1, -1)])]
+    center = np.array([r, c])
+    surround = list(zip(movements, [center] * 8))
     coords = []
-    start = np.array([r, c])
-    for move in movements:
-        loc = start + move
-        try:
-            arr[loc]
-            if (loc < 0).any(): raise RuntimeError
-        except: continue
-        while arr[tuple(loc)] == '.':
-            loc += move
-            try:
-                arr[loc]
-                if (loc < 0).any(): raise RuntimeError
-            except:
-                loc -= move
-                break
-        coords.append(loc)
-    return map(tuple, coords)
+
+    while len(surround) != 0:
+        surround = map(lambda mrc: [mrc[0], mrc[1] + mrc[0]], surround)
+        surround = list(filter(lambda mrc: valrc(mrc[1], arr), surround))
+
+        for i, mrc in enumerate(surround):
+            m, rc = mrc
+            if arr[rc[0]][rc[1]] != '.':
+                coords.append(surround.pop(i)[1])
+    return list(map(tuple, coords))
+
+print(get_visible(4, 3, data))
 
 
 l = 0
@@ -45,14 +51,15 @@ while (data != last).any() or first:
                 continue
             elif val == "L":
                 sf = get_visible(row, col, last)
-                sf = [*filter(lambda v: v == '#', [*map(lambda xy: last[xy], sf)])]
+                # print(sf)
+                sf = list(filter(lambda rc: last[rc] == '#', sf))
                 if len(sf) == 0:
                     data[row, col] = "#"
             else:
                 sf = get_visible(row, col, last)
-                af = [*filter(lambda v: v == '#', map(lambda xy: last[xy], sf))]
+                sf = list(filter(lambda rc: last[rc] == '#', sf))
 
-                if len(af) >= 5:
+                if len(sf) >= 5:
                     data[row, col] = "L"
 
 print(data)
