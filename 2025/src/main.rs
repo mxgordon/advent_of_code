@@ -3,10 +3,11 @@ extern crate core;
 use std::fs::read_to_string;
 
 mod day1;
+mod day2;
 
 macro_rules! day_run {
-    ($dayn:tt) => {
-        $dayn::run(read_file(stringify!($dayn))?)?
+    ($day_n:tt) => {
+        $day_n::run(read_file(stringify!($day_n))?)?
 
     };
 }
@@ -18,7 +19,7 @@ fn read_file(day: &str) -> anyhow::Result<String> {
 
 
 fn main() -> anyhow::Result<()> {
-    day_run!(day1);
+    day_run!(day2);
 
     Ok(())
 }
