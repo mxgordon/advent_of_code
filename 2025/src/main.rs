@@ -5,6 +5,7 @@ use std::fs::read_to_string;
 mod day1;
 mod day2;
 mod day3;
+mod day4;
 
 macro_rules! day_run {
     ($day_n:tt) => {
@@ -20,7 +21,7 @@ fn read_file(day: &str) -> anyhow::Result<String> {
 
 
 fn main() -> anyhow::Result<()> {
-    day_run!(day3);
+    day_run!(day4);
 
     Ok(())
 }
